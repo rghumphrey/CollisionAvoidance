@@ -10,10 +10,12 @@ network_param files were an attempt to set the IP of the drones but that wasn't 
 
 
 **How to Use**
+
 Make sure whatever drone mission file (ex. drone_3.py) is in sitl folder. Run start_drones.sh to launch a bunch of screens, launch two drones in sitl, and start QGroundControl (if QGroundControl is also in sitl folder)
 kill_drones.sh will close screens and xterm
 
 **Screen Stuff**
+
 to attach to a screen to run a mission, you can use (this will attach to drone mission 1 screen)
 ```
 screen -r drone_mission_1
