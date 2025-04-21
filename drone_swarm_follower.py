@@ -5,15 +5,27 @@ import math
 import sys
 import threading
 from collections import defaultdict
+# from geopy.distance import geodesic
+
+#   set threads for receiving/sending messages   
+#   get_local_ip will not be used on hardware once static ips are set (not needed now, just change to 127.0.0.1)
+#   make drones start in different locations -> update locations.txt and sim_vehicle.py for running
+#       * ping for each other by awaiting message -> start/bind sockets (2 ports for leader send/follower recv and follower send/leader recv)
+#       * both drones go to set target location at 5 m/s  (may have to move this to mavlink to set velocity)  
+#       * avoid collision
+#       * land when target location reached
+#   set mode to loiter after arm
+
 from pymavlink import mavutil
 from dronekit import connect, VehicleMode, LocationGlobalRelative, LocationGlobal
 
 SOCKET_PORT = 5005
 IP_SUBNET = "127.0.0.255" # CHANGE THIS TO "10.42.0.255"
+
 START_LOCATION = None
 TARGET_OFFSET = 0.00028  # Approx. 30m
 FLIGHT_ALTITUDE = 5
-SAFETY_DISTANCE = 30
+SAFETY_DISTANCE = 15
 WAYPOINT_LIMIT = 1
 shared_telemetry = defaultdict(lambda: {"System ID": None, "Latitude": None, "Longitude": None, "Altitude": None, "Vx": None, "Vy": None, "Vz": None})
 own_telemetry = defaultdict(lambda: {"System ID": None, "Latitude": None, "Longitude": None, "Altitude": None, "Vx": None, "Vy": None, "Vz": None})
@@ -27,16 +39,16 @@ def takeoff(target_altitude):
         print("Waiting for drone to be armable...")
         time.sleep(1)
 
-    
+    vehicle.mode = VehicleMode("GUIDED")
     
    
     while not vehicle.armed:
         print("Waiting for drone to arm...")
         time.sleep(1)
-    vehicle.mode = VehicleMode("GUIDED")
-    time.sleep(2)
+
     print("Taking off!")
     vehicle.simple_takeoff(target_altitude)
+    vehicle.airspeed = 5 # sets default airspeed to 5 m/s
     time.sleep(5)
 
     while True:
@@ -46,11 +58,10 @@ def takeoff(target_altitude):
         time.sleep(1)
 
     
-# Argument parser to check if the drone should avoid
+
 parser = argparse.ArgumentParser(description="Drone Collision Avoidance System")
 parser.add_argument('--connect', help="Vehicle connection target string.")
 parser.add_argument("--avoid", action="store_true", help="Enable collision avoidance")
-# parser.add_argument("--role", choices=["leader", "follower"], required=True, help="Choose role: 'leader' or 'follower'")
 args = parser.parse_args()
 
 # Connect to the vehicle
@@ -63,15 +74,12 @@ print('Connecting to vehicle on: %s' % connection_string)
 vehicle = connect(connection_string, wait_ready=True)
 
 
-
 msg = vehicle._master.wait_heartbeat()
-sys_id = msg.get_srcSystem()
+sys_id = 2
 print(f"sys id = {sys_id:.0f}")
 target_ip = str(IP_SUBNET)
 
-# start socket
-
-BROADCAST_IP = '127.255.255.255'  # For local test;  and need change to your broadcast IP for real drones
+BROADCAST_IP = '127.255.255.255'  # For local test; change to your broadcast IP for real drones
 
 
 udp_socket = socket.socket(socket.AF_INET, socket.SOCK_DGRAM, socket.IPPROTO_UDP)
@@ -82,26 +90,21 @@ udp_socket.setsockopt(socket.SOL_SOCKET, socket.SO_BROADCAST, 1)  # ← importan
 udp_socket.bind(('', SOCKET_PORT))  # '' = all interfaces
 
 
-
-# connect to mavlink udp sockets
-if sys_id == 1:
-    print('Trying to connect to 14461')
-    master = mavutil.mavlink_connection(f'udp:127.0.0.1:14561')
-    master.wait_heartbeat()
-elif sys_id == 2:
+if sys_id == 2:
     print('Trying to connect to 14462')
     master = mavutil.mavlink_connection(f'udp:127.0.0.1:14562')
     master.wait_heartbeat()
     
-
+flag_go = True
 def send_message():
-    global run
     while run:
             try:
-               
+                global flag_go
+                
                 master.wait_heartbeat() # get new message
                 msg = master.recv_match(type=['GLOBAL_POSITION_INT'], blocking=True)
                 if msg:
+                                     
                     own_telemetry[sys_id]["System ID"] = sys_id
                     own_telemetry[sys_id]["Latitude"] = msg.lat/1e7
                     own_telemetry[sys_id]["Longitude"] = msg.lon/1e7
@@ -109,39 +112,44 @@ def send_message():
                     own_telemetry[sys_id]["Vx"] = msg.vx/100.0
                     own_telemetry[sys_id]["Vy"] = msg.vy/100.0
                     own_telemetry[sys_id]["Vz"] = msg.vz/100.0
+                    flag_go = False
                     message = f"{own_telemetry[sys_id]['System ID']},{own_telemetry[sys_id]['Latitude']},{own_telemetry[sys_id]['Longitude']},{own_telemetry[sys_id]['Altitude']},{own_telemetry[sys_id]['Vx']},{own_telemetry[sys_id]['Vy']},{own_telemetry[sys_id]['Vz']}"
                     print(f"Sending: {message} to {IP_SUBNET}:{SOCKET_PORT}")
+             
                     udp_socket.sendto(message.encode(), (BROADCAST_IP, SOCKET_PORT))
 
             
             except Exception as e:
                 print(f"Error sending data: {e}")
-            
-            time.sleep(1) 
+                
+            time.sleep(1)  
 first_time = True
 set_lon = 0
 set_lat = 0
 set_alt = 0
 def receive_message():
-    global run
     while run:
+      
         try:
             global set_lon
             global set_lat
             global set_alt
             global first_time
+      
             data, addr = udp_socket.recvfrom(1024)
-            
+        
             if data:
-                
+       
                 parts = data.decode().split(",")
+           
                 if len(parts) == 7:
-                    system_id = int(parts[0])  
+                    system_id = int(parts[0])  # The system ID
+                  
                     if (system_id == sys_id):
                         continue
                     
                     lat, lon, alt, vx, vy, vz = map(float, parts[1:])
-                    # Update shared telemetry directly using system_id
+                   
                     shared_telemetry[system_id]["System ID"] = system_id
                     shared_telemetry[system_id]["Latitude"] = lat
                     shared_telemetry[system_id]["Longitude"] = lon
@@ -149,23 +157,6 @@ def receive_message():
                     shared_telemetry[system_id]["Vx"] = vx
                     shared_telemetry[system_id]["Vy"] = vy
                     shared_telemetry[system_id]["Vz"] = vz
-                    # other_pred = predict_location(lat,lon,alt,vx,vy,vz)
-                    if ((sys_id == 1) & (first_time == True) & ((alt) > 15)):
-                        target_location = LocationGlobal(lat+TARGET_OFFSET, lon, (alt/3.2804))
-                        vehicle.simple_goto(target_location)
-                        set_lat = (lat+TARGET_OFFSET)*1e7
-                        set_lon = lon*1e7
-                        set_alt = alt/3.2804
-                        vehicle.airspeed = 1 # sets default airspeed to 1 m/s
-                        first_time = False
-                    if ((sys_id == 2) & (first_time == True) & ((alt) > 15)):
-                        target_location = LocationGlobal(lat+TARGET_OFFSET, lon, (alt/3.2804))
-                        vehicle.simple_goto(target_location)
-                        set_lat = (lat+TARGET_OFFSET)*1e7
-                        set_lon = lon*1e7
-                        set_alt = alt/3.2804
-                        vehicle.airspeed = 1 # sets default airspeed to 1 m/s
-                        first_time = False
 
                     print(f"Updated shared telemetry for system {system_id}: {shared_telemetry[system_id]}")
                 else:
@@ -194,10 +185,10 @@ def haversine(lat1, lon1, lat2, lon2):
     return 2 * R * math.atan2(math.sqrt(a), math.sqrt(1 - a))
 
 def run_collision_avoidance_demo():
-    
+
     global first
-    global run
     while first:
+        global START_LOCATION
         takeoff(FLIGHT_ALTITUDE)
         first = False
         
@@ -208,39 +199,18 @@ def run_collision_avoidance_demo():
     receive_thread.start()  # Start the receive thread 
     send_thread.start()  # Start the send thread
     
-    
-        
-    
-    flag = True
-    set_back = True
+    global flag_go
+    # Now, you can continue running your main loop without blocking
     while run:
-        global set_lon
-        global set_lat
-        global set_alt
-        global first_time
-        if first_time != True:
+       
+        if  flag_go != True:
             own_lat = own_telemetry[sys_id]["Latitude"]
             own_lon = own_telemetry[sys_id]["Longitude"]
-            own_alt = own_telemetry[sys_id]["Altitude"]
             for system_id, data in shared_telemetry.items():
                 distance = haversine(own_lat,own_lon,data["Latitude"],data["Longitude"])
                 print(f"Distance = {distance}")
-                if distance < SAFETY_DISTANCE:
-                
-                    print(f"[Warning] Drone {system_id} within {distance:.1f}m!")
-                    if sys_id > system_id:
-                        print("change alt")
-                    
-                        if flag:
-                            vehicle.simple_goto(LocationGlobal(set_lat/1e7, set_lon/1e7, set_alt+10))
-                            flag = False
-                elif (distance > SAFETY_DISTANCE) & (flag == False) & (set_back == True):
-                    vehicle.simple_goto(LocationGlobal(set_lat/1e7, set_lon/1e7, set_alt))
-                    set_back = False
-          
-
-        time.sleep(1)  
-    
+                vehicle.simple_goto(LocationGlobal((data["Latitude"]),(data["Longitude"]), ((data["Altitude"]+5)/3.28084)))
+            time.sleep(1)
 
 # Main execution loop
 try:
@@ -251,7 +221,4 @@ except KeyboardInterrupt:
     time.sleep(1)
     
     
-
-
-
-
+    
