@@ -11,3 +11,5 @@ Then run this to start the script:
 python3 collision_avoidance.py --connect :14551
 
 Repeat this for the second drone. 
+
+To run the scripts for swarm, follow a similar procedure but instead of running python3 collision_avoidance.py, run drone_swarm_master.py on the first drone and drone_swarm_follower.py on the second.
