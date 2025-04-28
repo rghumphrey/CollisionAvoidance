@@ -1,6 +1,0 @@
-NET_ENABLE,1       # Enables networking
-NET_DHCP,0         # Disables DHCP (for static IP)
-NET_IPADDR0,111    # First byte of the IP address
-NET_IPADDR1,111    # Second byte of the IP address
-NET_IPADDR2,1      # Third byte of the IP address
-NET_IPADDR3,101    # Fourth byte of the IP address (e.g., 192.168.1.100)
