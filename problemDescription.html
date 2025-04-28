@@ -1,0 +1,42 @@
+<html>
+<head>
+<title> Distributed Drone Collision Avoidance  </title>
+<link rel="stylesheet" type="text/css" href="../../../../course.css">
+</head>
+
+
+<body>
+
+
+<br><h1 align="center"> Distributed Drone Collision Avoidance </h1>
+
+<p> As drones will integrate into the national airspace, there needs to be a mechanism (or more) to avoid collisions between drones belonging to different organization or between drones and manned aircraft.
+
+In this project we examine a distributed solution for this mechanism. In particular, we assume that each drone is broadcasting regularly its position through some means. In a real deployment it will likely be ADS-B or something akin to ADS-B. In our project it will be WiFi or ZigBee. It is assumed that drones in range will be able to receive the broadcast from each other.
+
+The goal is to design an algorithm that given a few drones with conflicting trajectories, corrections are applied to the drones such that they do not collide.
+
+This can be implemented using UAVs or UGVs.
+  
+
+<h3> Current Status </h3>
+
+<p>We have code that allows you to read the GPS (and heading) from the drone autopilot. It's relatively easy to get the information broadcasted and then received. Reacting to the broadcasts is not that easy (I believe).</a>.
+
+<p>To successfully complete this project you need to have:
+<ul>
+<li> Demo.
+<li> Programming skills (Python, socket programming)
+<li> Inclination for research for designing the collision avoidance algorithm.
+</ul>
+
+<h3> Deliverables </h3>
+
+<ul>
+<li> Documentation. 
+<li> Commented code.
+<li> Demo (emulation first, then real drones)
+</ul>  
+
+</body>
+</html>
