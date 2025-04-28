@@ -1,0 +1,76 @@
+To configure the networking for both Rapsberry Pi's, follow this guide:
+
+https://raspberrypi-guide.github.io/networking/create-wireless-access-point
+
+Follow this guide until the "Enable routing and IP masquerading" section. This only needs to be done on one Raspberry Pi. Instead of having YOURSSID and YOURPWD in the configuration file, you can put any ssid and pwd, for instance droneNetwork and dronePassword.
+
+To ensure this hotspot starts on boot, create a file in /etc/systemd/system. For example, run this command:
+
+sudo nano /etc/systemd/system/start_hotspot.service
+
+Then include this in the file: 
+
+[Unit]
+Description=Custom Wi-Fi setup at boot
+After=network.target
+
+[Service]
+Type=oneshot
+ExecStart=/usr/bin/nmcli dev set wlan0 managed no
+ExecStartPost=/bin/systemctl restart hostapd
+ExecStartPost=/bin/systemctl restart dnsmasq
+RemainAfterExit=true
+
+[Install]
+WantedBy=multi-user.target
+
+After doing this, run this to create and enable the service:
+
+sudo systemctl daemon-reload
+sudo systemctl enable start_hotspot.service
+
+This should now configure the Raspberry Pi to start hotspot on launch. To configure the other Raspberry pi, you have to edit the wpa_supplicant.conf file. Run this:
+
+sudo nano /etc/wpa_supplicant/wpa_supplicant.conf
+
+Then change the code to be like this (assuming droneNetwork and dronePassword are your ssid and pwd:
+
+country=US   # (or your country code)
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+    ssid="droneNetwork"
+    psk="dronePassword"
+    key_mgmt=WPA-PSK
+}
+
+You then have to configure the static IP by editing the wlan0.network service: 
+
+sudo mkdir -p /etc/systemd/network
+sudo nano /etc/systemd/network/wlan0.network
+
+Then edit this to look like this:
+
+[Match]
+Name=wlan0
+
+[Network]
+Address=192.168.4.10/24
+Gateway=192.168.4.1
+DNS=8.8.8.8
+
+Make sure this IP address is in the same subnet you set on the other Raspberry Pi. 
+
+Then restart and make sure the service is on:
+
+sudo systemctl enable wpa_supplicant@wlan0
+sudo systemctl enable systemd-networkd
+sudo systemctl start systemd-networkd
+sudo reboot
+
+
+
+
+
+
