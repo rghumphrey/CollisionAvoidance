@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <style>
+        h1 {
+            text-align: center;
+        }
+
+        h2 {
+            text-align: left;
+            padding-top: 20px;
+        }
+
+        td,
+        th {
+            border: 1px solid #000000;
+            text-align: left;
+            padding: 8px;
+        }
+
+        .readme {
+            text-align: center;
+            padding-top: 40px;
+        }
+    </style>
+
+    <title>Distributed Drone Collision Avoidance: Hardware</title>
+</head>
+
+<body>
+    <br><h1>Hardware</h1>
+    <h2>Drone</h2>
+    <table id="drone">
+        <tbody>
+            <tr>
+                <th>Part Name</th>
+                <th>Description</th>
+                <th>Manufacturer</th>
+                <th>Source</th>
+            </tr>
+            <tr>
+                <td>Drone</td>
+                <td>SAM4 Quadcopter built with carbon fiber structure and includes GPS</td>
+                <td>NC State</td>
+                <td>Provided by class/ECE Department</td>
+            </tr>
+            <tr>
+                <td>Mounting Plate</td>
+                <td>Carbon fiber plate custom-cut to fit into the SAM4 payload</td>
+                <td>NC State</td>
+                <td>Provided by class/ECE Department</td>
+            </tr>
+            <tr>
+                <td>Raspberry Pi 4 Model B</td>
+                <td>Mini computer used to interface our collision avoidance algorithm with the drone</td>
+                <td>Raspberry Pi</td>
+                <td><a href="https://www.amazon.com/dp/B07V5JTMV9?ref=ppx_yo2ov_dt_b_fed_asin_title&th=1">CanaKit</a></td>
+            </tr>
+            <tr>
+                <td>Rotor Riot Step-Down Voltage Regulator</td>
+                <td>Voltage converter used to convert the voltage down to 5V volts from an input ranging from 10-32 volts</td>
+                <td>Rotor Riot</td>
+                <td><a href="https://rotorriot.com/products/xt60-to-usb-power-adapter?srsltid=AfmBOordMhoGth05bve6uPA4kq2fT_2F_m5cK1-C0rIyEXgJAB84SYYt">Pololu</a></td>
+            </tr>
+            <tr>
+                <td>Power Cable Adapter XT30 to XT60</td>
+                <td>Power Adapter to Regulator</td>
+                <td>Amazon</td>
+                <td><a
+                        href="https://www.amazon.com/dp/B073DV59C9?ref=ppx_yo2ov_dt_b_fed_asin_title">Amazon</a>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+    <div class="readme">
+        <p>For the Drone Payload hardware setup, please see the <a href="doc/hardware_setup.txt">Drone hardware_setup.txt</a> file.</p>
+    </div>
+</body>
+
+</html>
