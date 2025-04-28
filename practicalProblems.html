@@ -1,0 +1,41 @@
+<div>
+  <br><h1 class="text-center">Practical Problems Collision Avoidance</h1>
+  <ul class="list-unstyled">
+    <li>
+      <p><strong>SITL Setup:</strong> One of our first initial challenges was setting up our SITL instance to work
+      with two drones. After reinstalling SITL several times, we learned that to run two drones you had to use sim_vehicle.py
+      instead of mavproxy.py, and add --instance=1 and --sysid=2 flags to the command to get the SITL to properly initialize.</p>
+    </li>
+    
+    <li>
+      <p><strong>Socket Communication:</strong> When setting up our communication, we were trying to use one port for our UDP
+      communcation. We wanted to do this for abstraction and simplicity, but quickly found the receiving to be challenging without
+      proper port initialization. After many different approaches, we were finally able to get the socket properly set up so that
+      many drones were able to all send and receive over the same socket.</p>
+    </li>
+    
+    <li>
+      <p><strong>Connectivity in the field:</strong> When we were in the field and trying to make adjustments, we were having very 
+      long      delays due to the poor hotspot connection provided by out drone. Since we were using our own hotspot created by the 
+      Raspberry Pi,       it took very long to edit files on the drones. We were also only able to edit via SSH/nano because the 
+      connection was too poor to      run any other type of editor, and even nano crashed the SSH connection several times. It took 
+      about 10-20 minutes to edit our code      on the drone that was a client on the hotspot. We realized by the end that we simply 
+      had to bring the drones closer together to make editing much faster.</p>
+    </li>
+
+    <li>
+      <p><strong>Absolute vs Relative Global Positioning:</strong> During demo, we quickly realized we had issues with our
+      positioning and mission planning. Our code had worked perfectly in SITL, so debugging was challenging. Eventually we realized
+      that our altitude had been setting to 30 ft when in reality we wanted it to be 350. This was because our actual global position
+      was 350, and we were using relative to set the position, which meant we were telling the drone to move very far down. This problem
+      arose because in the SITL, our base altitude was 0, instead of 330 which it was in the field. This issue persisted after many
+      adjustments but we were eventually able to fix all of the positions.</p>
+    </li>
+
+    
+  </ul>
+  <p><em>Advice for next year's students:</em> The best advice we could give is to test as soon as possible to ensure that you are able
+  to have multiple days in the field. If you are doing a project similar to this, you can also do a lot of testing with the networking
+  before by only using the Raspberry Pi's. Get the code on the hardware as quickly as possible and write very simple scripts to test 
+  each different function so that debugging is very quick.</p>
+</div>
