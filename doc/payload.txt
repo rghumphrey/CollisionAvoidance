@@ -1,0 +1,12 @@
+# Raspberry Pi Payload Plate Attachment
+
+This doc contains the instructions for setting up the payload for the drone. In this project, a Raspberry Pi, XT60 to USB & Type-C Power Adapter, base plate, standoffs and screws are needed. Additional payload materials are USB-C to USB-A cord, and a XT60 to XT30, USB-A to micro-USB,and zip ties.
+
+1. Attach the Rapsberry Pi to the base plate by using the standoffs and screws and screw the board in. 
+2. Place the XT60 to USB & Type-C Power Adapter towards the front of the base plate and attach using zip ties. Don't fasten zip ties fully until you ensure the power cord can reach when mounted to the drone. 
+3. Connect XT60 to USB & Type-C Power Adapter to Raspberry pi using the USB-A to USB-C cord
+4. Slide base plate into drone.
+5. Connect XT30 to XT60 from the power board on the drone to the XT60 to USB & Type-C Power Adapter.
+6. Fasten zip ties on the XT60 to USB & Type-C Power Adapter.
+7. Connect the micro-USB to the autopilot and USB-A to the Raspberry Pi.
+8. Repeat this twice for both drones.
