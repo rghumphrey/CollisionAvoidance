@@ -1,16 +1,6 @@
 ### Collision Avoidance
 
-These files right now:
-
-Drone 1 doesn't work
-
-Drone 2 doesn't work
-
-Drone 3 will have a leader broadcast messages and a follower receive them, you need to specify flags for drone as --role leader or --role follower when launching
-
-Drone 4 was for debugging things
-
-network_param files were an attempt to set the IP of the drones but that wasn't working
+Instructions for how to set up the drones are in ./doc, and the scripts are in ./src
 
 
 
