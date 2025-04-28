@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<head>
+    <meta charset="UTF-8">
+    <title>Collision Avoidance Software</title>
+</head>
+<body>
+<h1>Software</h1>
+<a href="src/">Link to code used in the project</a>
+
+
+<p>All mission code runs on Python 3.11, which comes pre installed when flashing Raspberry Pi OS </p>
+
+    <h2>Flashing Raspberry PI OS (64-bit) Raspberry Pi using Raspberry Pi Imager</h2>
+    <ol>
+        <li>Get the Raspberry Pi Imager from <a href="https://www.raspberrypi.org/software/" target="_blank">here</a></li>
+        <li>Insert your microSD card into your computer with a microSD adapter.</li>
+        <li>Use the Imager to select the Raspberry PI OS (64-bit) and select the SD card as storage</li>
+        <li>Ensure that SSH is enabled in the advanced settings, and set username and password.</li>
+        <li>After flashing, you can insert the SD card into the Pi. From here you will have to use a microHDMI-to-HDMI cord to connect to a screen to connect the Pi to a network.</li>
+        <li>From here, follow the set up in <a href="./doc/networking.txt" target="_blank">networking.txt</a></li>
+    </ol>
+
+
+    <h2>Installing dronekit and mavlink with Patches</h2>
+    <p>Follow these steps to install dronekit and mavlink, and apply the necessary patches: </p>
+    <div style="background-color:black; color:white; padding:10px;">
+        <code>
+        sudo python3 -m pip uninstall dronekit pymavlink -y<br>
+        mkdir -p updated_dronekit_pkgs && cd updated_dronekit_pkgs<br>
+        git clone https://github.com/morzack/dronekit-python.git && cd dronekit-python<br>
+        git checkout dronekit-ignore-non-vehicle-heartbeats<br>
+        sudo python3 -m pip install . -v<br>
+        cd ..<br>
+        sudo python3 -m pip uninstall pymavlink -y<br>
+        git clone https://github.com/ArduPilot/mavlink.git && cd mavlink<br>
+        git submodule update --recursive --init<br>
+        cd pymavlink<br>
+        git pull origin master<br>
+        git checkout 67669c3<br>
+        sudo python3 setup.py install<br>
+    </code>
+    </div> <br>
+
+
+    <h2>Running the code on the drone</h2>
+	<p>The code for running the drone can be found <a href="./src/README.txt" target="_blank">here</a>.</p>
+
+
+    <br>
+</body>
+
+</html>
