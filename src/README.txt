@@ -8,7 +8,7 @@ mavproxy.py --master=/dev/ttyACM0 --baudrate 57600 --out 127.0.0.1:14551 --out 1
 
 Then run this to start the script: 
 
-python3 collision_avoidance.py --connect :14551
+python3 drone_collision_avoidance.py --connect :14551
 
 Repeat this for the second drone. 
 
