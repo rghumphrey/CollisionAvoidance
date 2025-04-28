@@ -1,6 +1,6 @@
 To run the collision avoidance script, ensure that you are connected to the network the Raspberry Pi's start. Then, ssh into the first drone with:
 
-ssh drone1@IP_ADDRESS
+ssh drone1@IP_ADDRESS (where the IP address is the drone's IP)
 
 Launch mavproxy with this command: 
 
